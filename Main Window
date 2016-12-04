@@ -1,0 +1,89 @@
+package MainWindow;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class MainWindow extends JFrame {
+	private static JPanel panel1,panel2;
+	private static JButton send,connect;
+	private static JTextField mess, friend;
+	private static JTextArea zone;
+	private static JComboBox list;
+	private static String[] listbox = {"global"};
+	public static JFrame frameM = new JFrame("Chat App"); 
+	
+	public static void addComponentsToPane(Container pane){
+		pane.setLayout(new BorderLayout());
+		
+		JTextArea zone = new JTextArea();
+		pane.add(zone, BorderLayout.CENTER);
+		
+		JTextField mess = new JTextField(40);		
+		JButton send = new JButton("Send");
+		JPanel panel1 = new JPanel(new FlowLayout());
+		panel1.add(mess);
+		panel1.add(send);
+		pane.add(panel1,BorderLayout.SOUTH);
+		
+		JTextField friend = new JTextField(30);
+		JButton connect = new JButton("Connect");
+		
+		String[] items = {"Global Chat","username_1","username_2"};
+		JComboBox<String[]> editComboBox = new JComboBox(items);
+		editComboBox.setEditable(true);
+				
+		//JComboBox<String> list = new JComboBox(listbox);
+		JPanel panel2 = new JPanel();		
+		panel2.add(friend);
+		panel2.add(connect);
+		panel2.add(editComboBox);
+		
+		editComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox box = (JComboBox)e.getSource();
+                        String item = (String)box.getSelectedItem();
+                        friend.setText(item);
+            }
+        });
+		
+		pane.add(panel2, BorderLayout.NORTH);
+		
+		
+	}
+		
+	
+	public static void createAndShowGUI() { 
+        //JFrame.setDefaultLookAndFeelDecorated(true); 
+ 
+        
+        frameM.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+ 
+        addComponentsToPane(frameM.getContentPane()); 
+         
+        frameM.setSize(600, 400);
+        frameM.setLocationRelativeTo(null);   
+        frameM.setResizable(false);
+        frameM.setVisible(false); 
+    }
+	
+//	public static void main(String[] args) {
+//		javax.swing.SwingUtilities.invokeLater(new Runnable() { 
+//            public void run() { 
+//                createAndShowGUI(); 
+//            } 
+//        });
+//	}
+
+}
