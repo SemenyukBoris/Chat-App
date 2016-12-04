@@ -1,0 +1,142 @@
+package Login;
+
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+import javax.swing.*;
+import Main.Main;
+import Main.UserData;
+import MainWindow.MainWindow;
+
+public class LoginWindow extends Frame{
+	private static final long serialVersionUID = 1L;
+	
+	private static JLabel toplable,label1,label2, nickname, password;
+	private static JPanel panel1, panel2, panel3, panel4, panel5,panel6;
+	private static JTextField textfield1, textfield2;
+	private static JButton login, reg;
+	private static String nick;
+	private static String pass;	
+	public static JFrame frameL = new JFrame("Welcome to Chat!");
+	public static RegisterWindow register = new RegisterWindow();
+	public static MainWindow mainwindow = new MainWindow();
+	
+	
+    public static void addComponentsToPane(Container pane) {
+    	pane.setLayout(new GridLayout(4,1));
+    	    	
+//    	JLabel label1 = new JLabel("			");
+//    	JPanel panel4 = new JPanel(new FlowLayout());
+//    	panel4.add(label1);
+//    	pane.add(panel4); 
+    	
+//    	JLabel toplabel = new JLabel("<html>Already got an account? Login straight away."  + 
+//    								"<ul>No account yet? Then register.");
+    	
+    	JLabel toplabel = new JLabel("Login or register account.");
+    	
+    	JPanel panel1 = new JPanel(new FlowLayout());
+    	// Верхняя панель с надписью
+    	panel1.add(toplabel);
+    	pane.add(panel1); 
+    	
+//    	JLabel label2 = new JLabel("			");
+//    	JPanel panel6 = new JPanel(new FlowLayout());
+//    	panel6.add(label2);
+//    	pane.add(panel6); 
+    	
+    	
+    	
+    	JLabel nickname = new JLabel("Nickname : ");
+    	JTextField textfield1 = new JTextField(10);
+    	JPanel panel2 = new JPanel(new FlowLayout());
+    	// Панель с никнеймом и полем для ввода
+    	panel2.add(nickname);
+    	panel2.add(textfield1);
+    	pane.add(panel2);    	
+    	
+    	JLabel password = new JLabel("Password : ");
+    	JTextField textfield2 = new JTextField(10);
+    	JPanel panel5 = new JPanel(new FlowLayout());
+    	// Панель с никнеймом и полем для ввода
+    	panel5.add(password);
+    	panel5.add(textfield2);
+    	pane.add(panel5);
+    	
+    	JButton login = new JButton("Login");
+    	login.setPreferredSize(new Dimension(100,25));
+    	JButton reg = new JButton("Register");
+    	reg.setPreferredSize(new Dimension(100,25));
+    	
+    	JPanel panel3 = new JPanel(new FlowLayout());
+    	// Панель с кнопкой Login и кнопкой Register
+   	     	
+    	panel3.add(login);
+    	panel3.add(reg);
+    	pane.add(panel3);  	
+    	
+	    login.addActionListener(new ActionListener(){
+	    	  public void actionPerformed(ActionEvent e) { 
+	    		  nick = textfield1.getText();
+	    		  pass = textfield2.getText();
+	    		for (int i=0;i<Main.ArrList.size();i++){	
+		    		if (Main.ArrList.get(0).getNickname().equals(nick) == true){
+		    			if (Main.ArrList.get(0).getPassword().equals(pass) == true){
+			    			mainwindow.frameM.setVisible(true);
+			    			frameL.setVisible(false);
+			    			register.frameR.setVisible(false);
+		    			} else {
+		    				// Окно с ошибкой пароля
+		    			}
+		    			break;
+		    		}		    		
+		    	  }
+	    	  }
+	    	});
+	    
+	    reg.addActionListener(new ActionListener(){
+	    	  public void actionPerformed(ActionEvent e) {   
+	    		  //RegisterWindow register = new RegisterWindow();	    		  
+	    		  //register.createAndShowGUI();
+	    		  register.frameR.setVisible(true);
+	    		  frameL.setVisible(false);
+	    	  }
+	    	});
+    	   	    	   	
+	}
+		
+    public static void createAndShowGUI() { 
+        //JFrame.setDefaultLookAndFeelDecorated(true); 
+    	
+        
+        frameL.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        register.frameR.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ 
+        addComponentsToPane(frameL.getContentPane()); 
+         
+        frameL.setSize(400, 200);
+        frameL.setLocationRelativeTo(null);   
+        frameL.setResizable(false);
+        frameL.setVisible(true); 
+    } 
+ 
+
+	public static void main(String[] args) { 
+		
+        javax.swing.SwingUtilities.invokeLater(new Runnable() { 
+            public void run() { 
+                createAndShowGUI();
+                register.createAndShowGUI();
+                mainwindow.createAndShowGUI();
+                register.frameR.setVisible(false);
+            } 
+        }); 
+    }
+    
+}
