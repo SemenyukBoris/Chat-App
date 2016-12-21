@@ -2,19 +2,18 @@ package Application;
 
 public class UserData {
 	
-	private String nickname, password, ip;
+	private String nickname, password;
 	
 	public UserData(){}
 	
-	public UserData(String nickname, String password, String ip){
+	public UserData(String nickname, String password){
 		this.nickname = nickname;
 		this.password = password;
-		this.ip = ip;
 	};
 	
 
 	public void print() {
-		System.out.println(this.nickname + "|" + this.password + "|" + this.ip);
+		System.out.println(this.nickname + "|" + this.password);
 	}
 
 	public String getNickname() {
@@ -31,13 +30,5 @@ public class UserData {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 }
