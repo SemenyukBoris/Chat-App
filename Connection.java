@@ -1,4 +1,4 @@
-package Application;
+package Server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -87,6 +87,8 @@ public class Connection extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally { 
+			// -- online count;
+			MainServer.servw.ChangeOnlineCount(Server.connections.size(), 1);
 			close();
 		}
 		}

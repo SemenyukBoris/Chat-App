@@ -1,4 +1,4 @@
-package Application;
+package Server;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MainServer {
 	public static ArrayList<UserData> ArrList = new ArrayList<UserData>();
 	static String[] Field = new String[3];
@@ -19,22 +20,17 @@ public class MainServer {
 	public static PrintWriter out;
 	public static Socket socket;
 	public static ServerSocket server;
-	public static Login login;
+	public static ServerWindow servw;
 
 	
 	public static void main(String[] args) {
+		
 		System.out.println("Сервер запущен.");
 		TextIN(ArrList);
 		System.out.println("Данные полученны.");
 		
+		servw = new ServerWindow();
 		new Server();
-		
-
-		
-		// Запустить run для проверки логинов 
-		// Запустить run для регистрации
-		// Запустить сервер с подключениями
-			
 		
 		
 	}

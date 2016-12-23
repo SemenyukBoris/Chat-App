@@ -1,4 +1,4 @@
-package Application;
+package Server;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -23,14 +23,15 @@ public class Server {
 	public static boolean loginflag;
 	String log, pass, str;
 	private static boolean reg_login_flag;
+	boolean flagloop = false;
 	private static String message;
 	
 	public Server() {
 		
 		try {
 			server = new ServerSocket(1234);
+			System.out.println(server.getInetAddress());
 			
-			boolean flagloop = false;
 			while (true) {
 				System.out.println(connections.size());
 				flagloop = false;
@@ -60,13 +61,15 @@ public class Server {
 						Field2 = message.split("#");
 						log = Field2[0];
 						pass = Field2[1];
-						CheckReg(log);
+						synchronized(MainServer.ArrList){
+							CheckReg(log);}
 						if (reg_login_flag == false) {
 							synchronized(MainServer.ArrList){
 								System.out.println("Login: " + log + " не зарегистрирован." );
 								UserData new_user = new UserData(log, pass);
 								MainServer.ArrList.add(new_user);
 								String result = "registerback" + "|" + "successfuly" + "#" + "successfuly";
+								MainServer.servw.ChangeOnlineCount(MainServer.ArrList.size(), -2);
 								outS.println(result);
 							}
 						}
@@ -93,6 +96,8 @@ public class Server {
 							Connection con = new Connection(socket);
 							connections.add(con);
 							con.start();
+							// ++ online count;
+							MainServer.servw.ChangeOnlineCount(Server.connections.size(), 2);
 							System.out.println("Добавил новой подлкючение.");
 							break;
 						}
@@ -130,10 +135,11 @@ public class Server {
 	public static synchronized void Check(String log, String pass){
 		for (int i=0; i<MainServer.ArrList.size(); i++){
 			if (MainServer.ArrList.get(i).getNickname().equals(log) == true) {
+				
 				if (MainServer.ArrList.get(i).getPassword().equals(pass) == true) {
 					// выслать в поток команду loginback с сообщением successful
-					String result = "loginback" + "|" + "successfuly" + "#" + "successfuly";
 					loginflag = true;
+					String result = "loginback" + "|" + "successfuly" + "#" + "successfuly";				
 					outS.println(result);					
 				}
 			}
