@@ -18,29 +18,31 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import javax.swing.JPasswordField;
 
-public class RegisterWindow extends JFrame implements Runnable {
+public class RegisterWindow extends JFrame implements Runnable{
 	private static final long serialVersionUID = 21L;
 	private static final Object monitorReg = new Object();
 	
 	public static BufferedReader in;
 	public static PrintWriter out;
 	public static Socket socket;
-	
+	private String info;
 	private JTextField inputnick;
 	private JLabel textlabel;
 	private JLabel textlabel_2;
 	private JButton CreateButton;
 	private JButton CanselButton;
-	private static JOptionPane pass;
+	private JPasswordField passwordField;
+	private JPasswordField passwordField_1;
 	
+	public static  JOptionPane qwe1, qwe2, qwe3, qwe4;
 	
 	private String message;
-	private static String info;
 	static String[] Field = new String[2];
 	static String[] Log = new String[2];
 	
 	
 	public RegisterWindow() {
+		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Register New Account");
@@ -56,8 +58,8 @@ public class RegisterWindow extends JFrame implements Runnable {
 				try {
 					Chat.win.in.close();
 					Chat.win.out.close();
-					Chat.win.socket.close();
-				} catch (Exception e) {  System.err.println("Exception в методе close");	}
+					RegisterWindow.socket.close();
+				} catch (Exception e) {  System.err.println("Exception РІ РјРµС‚РѕРґРµ close");	}
 		    	dispose();
 		    }
 		    public void windowClosed(java.awt.event.WindowEvent windowEvent) {} 
@@ -121,36 +123,41 @@ public class RegisterWindow extends JFrame implements Runnable {
 		passwordField_1.setBounds(121, 123, 200, 20);
 		getContentPane().add(passwordField_1);
 	}
-
 	
 	private Action create = new AbstractAction() {
 		private static final long serialVersionUID = 2L;
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == CreateButton & inputnick.getText().length() > 0 ){
-				String str = new String(passwordField.getPassword());
-				String str1 = new String(passwordField_1.getPassword());				
-				if (str.equals(str1) == true) {
-					System.out.println("Отправка данных на сервер для проверки");
-					
-					System.out.println("Нажал CREATE");
+			Chat.reg.runReg();
+			//Chat.log.runLogin();
+			String str = new String(passwordField.getPassword());
+			String str1 = new String(passwordField_1.getPassword());
+			if (e.getSource() == CreateButton & inputnick.getText().length() > 0 & str.length() > 0 == true & str1.length() > 0 == true){					
+				if (str.equals(str1) == true ) {						
+					System.out.println("РћС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С… РЅР° СЃРµСЂРІРµСЂ РґР»СЏ РїСЂРѕРІРµСЂРєРё");			
 					String nick = inputnick.getText();
 					String pass = new String(passwordField.getPassword());
 					String new_mess = "register" + "|" + nick + "#" + pass;
 					Chat.win.out.println(new_mess);	
-					System.out.println("Отправил на сервер " + new_mess);
+					System.out.println("РћС‚РїСЂР°РІРёР» РЅР° СЃРµСЂРІРµСЂ " + new_mess);
 				}
 				else {
-					pass = new JOptionPane();
-					pass.showMessageDialog(null,"Введеные пароли не совпадает. Повторите еще раз.", "Ошибка ввода данных.", pass.WARNING_MESSAGE);
-					//JOptionPane.showMessageDialog(null, "Пароль не совпадает. Введите еще раз.", "Game started", JOptionPane.INFORMATION_MESSAGE);
-					remove(pass);
-					System.out.println("Пароль не совпадает");
+					//JOptionPane.getRootFrame().setVisible(false);
+					JOptionPane.showMessageDialog(null,"Р’РІРµРґРµРЅС‹Рµ РїР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°РµС‚. РџРѕРІС‚РѕСЂРёС‚Рµ РµС‰Рµ СЂР°Р·.", "РћС€РёР±РєР° РІРІРѕРґР° РґР°РЅРЅС‹С…", JOptionPane.WARNING_MESSAGE);
+					//JOptionPane.getRootFrame().setVisible(false);
+					System.out.println("РџР°СЂРѕР»СЊ РЅРµ СЃРѕРІРїР°РґР°РµС‚");
 					passwordField.setText("");
 					passwordField_1.setText("");
 				}
 				
 			}
+			
+			else {
+				//JOptionPane.getRootFrame().setVisible(false);
+				JOptionPane.showMessageDialog(null,"Р—Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РїРѕР»СЏ.", "РћС€РёР±РєР° РІРІРѕРґР° РґР°РЅРЅС‹С….", JOptionPane.WARNING_MESSAGE);
+				//JOptionPane.getRootFrame().setVisible(false);	
+			}
+			
 		}
 	};
 	
@@ -167,8 +174,7 @@ public class RegisterWindow extends JFrame implements Runnable {
 			}
 		}
 	};
-	private JPasswordField passwordField;
-	private JPasswordField passwordField_1;
+
 
 	
 	public void waitReg() {
@@ -199,28 +205,29 @@ public class RegisterWindow extends JFrame implements Runnable {
 				Field = info.split("\\|");
 				String operation = Field[0];
 				String message = Field[1];
-				System.out.println("Получил на проверку операцию:" + operation);
+				System.out.println("РћС‚РїСЂР°РІР»СЏСЋ РЅР° СЃРµСЂРІРµСЂ РѕРїРµСЂР°С†РёСЋ:" + operation);
 				
 				if (operation.equals("registerback") == true) {
 					Log = message.split("#");
 					String log = Log[0];
 					String pass = Log[1];
-					System.out.println("Получил на проверку результат:" + log + "#" + pass);
+					System.out.println("РћС‚РїСЂР°РІР»СЏСЋ РЅР° СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰РµРЅРёРµ:" + log + "#" + pass);
 					if ((log.equals("successfuly") == true && pass.equals("successfuly") == true)) {
-						JOptionPane.showMessageDialog(null, "Регистрация прошла успешно. Теперь авторизуйтесь.");
+						JOptionPane.showMessageDialog(null, "Р РµРіРёСЃС‚СЂР°С†РёСЏ РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ. РўРµРїРµСЂСЊ Р°РІС‚РѕСЂРёР·СѓР№С‚РµСЃСЊ.");
 						Chat.reg.setVisible(false);
 						Chat.log.setVisible(true);
 						Chat.reg.dispose();								
 						break;
 					}
 					else {
-						JOptionPane.showMessageDialog(null, "Такой логин уже зарегистрирован, выберите другой.");
+						JOptionPane.showMessageDialog(null, "РўР°РєРѕР№ Р»РѕРіРёРЅ СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ, РІС‹Р±РµСЂРёС‚Рµ РґСЂСѓРіРѕР№.");
 					}
 				}
 			} catch (IOException e) {
-				System.err.println("IOException в методе run loginwindow.");
+				System.err.println("IOException РІ РјРµС‚РѕРґРµ run loginwindow.");
 				e.printStackTrace();					
 			} 
 		}
 	}
+
 }

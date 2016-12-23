@@ -31,12 +31,14 @@ public class LoginWindow extends JFrame implements Runnable {
 	public static PrintWriter out;
 	public static Socket socket;
 	
+	
 	private String message;
 	private static String info;
 	static String[] Field = new String[2];
 	static String[] Log = new String[2];
 	public JPanel myRootPane = new JPanel();
-	private JOptionPane qwe2, qwe3, qwe4;
+	//public   JOptionPane ;
+	public static JOptionPane qwe1, qwe2, qwe3, qwe4;
 	
 
 	
@@ -50,15 +52,16 @@ public class LoginWindow extends JFrame implements Runnable {
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	
 		    	message = "break|null";
 				Chat.win.out.println(message);
 				try {
 					Chat.win.in.close();
 					Chat.win.out.close();
-					Chat.win.socket.close();
-				} catch (Exception e) {  System.err.println("Exception в методе close");	}
+					LoginWindow.socket.close();
+				} catch (Exception e) {  System.err.println("Exception РІ РјРµС‚РѕРґРµ close");	}
 		    	dispose();
-		    }
+		    } 
 		    public void windowClosed(java.awt.event.WindowEvent windowEvent) {} 
 		    public void windowOpened(java.awt.event.WindowEvent windowEvent) {} 
 		    public void windowIconified(java.awt.event.WindowEvent windowEvent) {} 
@@ -105,7 +108,6 @@ public class LoginWindow extends JFrame implements Runnable {
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);	
-		
 	}
 	
 	
@@ -113,8 +115,7 @@ public class LoginWindow extends JFrame implements Runnable {
 		try {
 			socket = new Socket("127.0.0.1",1234);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream(),true);
-			
+			out = new PrintWriter(socket.getOutputStream(),true);		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -139,21 +140,22 @@ public class LoginWindow extends JFrame implements Runnable {
 				Field = info.split("\\|");
 				String operation = Field[0];
 				String message = Field[1];
-				System.out.println("Получил на проверку операцию:" + operation);
+				System.out.println("РћС‚РїСЂР°РІР»СЏСЋ РЅР° СЃРµСЂРІРµСЂ РѕРїРµСЂР°С†РёСЋ:" + operation);
 				
 				if (operation.equals("loginback") == true) {
 					Log = message.split("#");
 					String log = Log[0];
 					String pass = Log[1];
-					System.out.println("Получил на проверку результат:" + log + "#" + pass);
+					System.out.println("РћС‚РїСЂР°РІР»СЏСЋ РЅР° СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰РµРЅРёРµ:" + log + "#" + pass);
 					if ((log.equals("successfuly") == true) && (pass.equals("successfuly") == true)) {
 						Chat.reg.dispose();
-						Chat.win.setVisible(true);						
+						Chat.win.setVisible(true);		
+						Chat.win.dispose();
 						break;
 					}
 					else {
 						qwe2 = new JOptionPane();
-						qwe2.showMessageDialog(null,"Такой логин не зарегистрирован, или пароль неверный.", "Ошибка ввода данных.", qwe2.WARNING_MESSAGE);
+						qwe2.showMessageDialog(null,"РўР°РєРѕР№ Р»РѕРіРёРЅ РЅРµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ, РёР»Рё РїР°СЂРѕР»СЊ РЅРµРІРµСЂРЅС‹Р№.", "РћС€РёР±РєР° РІРІРѕРґР° РґР°РЅРЅС‹С….", qwe2.WARNING_MESSAGE);
 						remove(qwe2);
 					}
 				} 
@@ -161,20 +163,20 @@ public class LoginWindow extends JFrame implements Runnable {
 					Log = message.split("#");
 					String log = Log[0];
 					String pass = Log[1];
-					System.out.println("Получил на проверку результат:" + log + "#" + pass);
+					System.out.println("РџРѕР»СѓС‡РёР» РЅР° РїСЂРѕРІРµСЂРєСѓ СЂРµР·СѓР»СЊС‚Р°С‚:" + log + "#" + pass);
 					if ((log.equals("successfuly") == true && pass.equals("successfuly") == true)) {
-						JOptionPane.showMessageDialog(this, "Регистрация прошла успешно. Теперь авторизуйтесь.");
+						JOptionPane.showMessageDialog(this, "Р РµРіРёСЃС‚СЂР°С†РёСЏ РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ. РўРµРїРµСЂСЊ Р°РІС‚РѕСЂРёР·СѓР№С‚РµСЃСЊ.");
 						Chat.reg.setVisible(false);
 						Chat.log.setVisible(true);
 					}
 					if ((log.equals("wrong") == true && pass.equals("wrong") == true)){
 						qwe3 = new JOptionPane();
-						qwe3.showMessageDialog(this,"Такой логин уже зарегистрирован, выберите другой.", "Ошибка ввода данных.", qwe3.WARNING_MESSAGE);
+						qwe3.showMessageDialog(this,"РўР°РєРѕР№ Р»РѕРіРёРЅ СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ, РІС‹Р±РµСЂРёС‚Рµ РґСЂСѓРіРѕР№.", "РћС€РёР±РєР° РІРІРѕРґР° РґР°РЅРЅС‹С….", qwe3.WARNING_MESSAGE);
 						remove(qwe3);
 					}
 				}
 			} catch (IOException e) {
-				System.err.println("IOException в методе run loginwindow.");
+				System.err.println("IOException РІ РјРµС‚РѕРґРµ run loginwindow.");
 				e.printStackTrace();					
 			} 
 		}
@@ -202,17 +204,16 @@ public class LoginWindow extends JFrame implements Runnable {
 		public void actionPerformed(ActionEvent e) {
 			if ((e.getSource() == login) & (inputlog.getText().length() > 0) & (passwordField.getPassword().length > 0 ) ) { 
 				runLogin();
-				System.out.println("Нажал LOGIN");
 				String log = inputlog.getText();
 				Chat.Name = log;
 				String pass = new String(passwordField.getPassword());
 				String new_mess = "login" + "|" + log + "#" + pass;
 				Chat.win.out.println(new_mess);	
-				System.out.println("Отправил на сервер " + new_mess);								
+				System.out.println("РћС‚РїСЂР°РІР»СЏСЋ РЅР° СЃРµСЂРІРµСЂ " + new_mess);								
 			}
 			else {
 				qwe4 = new JOptionPane();
-				qwe4.showMessageDialog(null,"Заполните пустые поля", "Ошибка ввода данных.", qwe4.WARNING_MESSAGE);
+				qwe4.showMessageDialog(null,"РџСѓСЃС‚С‹Рµ РїРѕР»СЏ РІРІРѕРґР°. РџРѕР¶Р°Р»СѓР№СЃС‚Р° СѓРєР°Р¶РёС‚Рµ Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ.", "РћС€РёР±РєР° РІРІРѕРґР° РґР°РЅРЅС‹С….", qwe4.WARNING_MESSAGE);
 				remove(qwe4);
 			}
 		}

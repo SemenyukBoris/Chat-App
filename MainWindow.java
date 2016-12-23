@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.sql.Time;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -19,14 +16,11 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.JScrollPane;
 import java.awt.Font;
@@ -42,14 +36,16 @@ public class MainWindow extends JFrame implements  Runnable{
 	static String[] Field2 = new String[2];
 	public boolean flag;
 	public boolean flagclose;
+	private Date currentDate;
 	public static boolean flagstop = false;
 	public BufferedReader in;
+	public boolean flagend;
 	public PrintWriter out;
 	public static Socket socket;
 	
 	private static JTextPane chatzone;
 	private JTextField inputmess;
-	private JButton ButtonSend, ButtonConnect, ButtonDisconnect;
+	private JButton ButtonSend, ButtonDisconnect;
 	
 	
 	public MainWindow() {	
@@ -97,12 +93,6 @@ public class MainWindow extends JFrame implements  Runnable{
 		ButtonSend.setBounds(500, 331, 84, 25);
 		getContentPane().add(ButtonSend);
 		
-		ButtonConnect = new JButton("Connect");
-		ButtonConnect.addActionListener(connect);
-		ButtonConnect.setFont(new Font("Tahoma", Font.BOLD, 11));
-		ButtonConnect.setBounds(374, 11, 100, 25);
-		ButtonConnect.setEnabled(false);
-		getContentPane().add(ButtonConnect);
 		
 		ButtonDisconnect = new JButton("Disconnect");
 		ButtonDisconnect.addActionListener(disconnect);
@@ -125,16 +115,14 @@ public class MainWindow extends JFrame implements  Runnable{
             doc.insertString(doc.getLength(), msg + "\n", style);
         } catch (BadLocationException ex) {
         }
-		
-		//chatzone.setText(chatzone.getText() + msg + "\n");
 	}
 			
-	public void Connect() {
+	public synchronized void Connect() {
 		try {
-			socket = new Socket("192.168.0.106",1234);
+			System.out.println(Chat.IP);
+			socket = new Socket(Chat.IP,1234);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream(),true);
-			
+			out = new PrintWriter(socket.getOutputStream(),true);		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -144,7 +132,7 @@ public class MainWindow extends JFrame implements  Runnable{
 		try {
 			this.in.close();
 			this.out.close();
-			this.socket.close();
+			MainWindow.socket.close();
 		} catch (Exception e) {  System.err.println("Exception в методе close");	}
 	}
 	
@@ -162,16 +150,6 @@ public class MainWindow extends JFrame implements  Runnable{
 			}
 		}
 	};
-		
-	private Action connect = new AbstractAction() {
-		private static final long serialVersionUID = 3L;
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == ButtonConnect) {	
-				
-			}
-		}
-	};
 			
 	private Action disconnect = new AbstractAction() {
 		private static final long serialVersionUID = 4L;
@@ -181,11 +159,14 @@ public class MainWindow extends JFrame implements  Runnable{
 				message = "exit|" + Chat.Name;
 				System.out.println("Отправляю на сервер: " + message);
 				out.println(message);
+				//Chat.win.Disconnect();	
+				flagend = true;
+				
 			}
 		}
 	};
 
-	private Date currentDate;
+
 	
 	@Override
 	public void run() {	
@@ -221,7 +202,6 @@ public class MainWindow extends JFrame implements  Runnable{
 						Disconnect();
 						ButtonSend.setEnabled(false);
 						ButtonDisconnect.setEnabled(false);
-						ButtonConnect.setEnabled(true);
 						break;
 					}					
 				}
