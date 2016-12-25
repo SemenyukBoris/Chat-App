@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class Connection extends Thread {
 	private BufferedReader in;
-	private PrintWriter out;
+	public PrintWriter out;
 	private Socket socket;
 	private String name = "";
 	private String info;

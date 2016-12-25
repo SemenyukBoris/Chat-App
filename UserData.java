@@ -3,6 +3,7 @@ package Server;
 public class UserData {
 	
 	private String nickname, password;
+	private boolean isOnline;
 	
 	public UserData(){}
 	
@@ -30,5 +31,13 @@ public class UserData {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public boolean getisOnline() {
+		return isOnline;
+	}
+
+	public void setisOnline(boolean isOnline) {
+		this.isOnline = isOnline;
 	}
 }

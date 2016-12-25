@@ -1,10 +1,8 @@
 package Server;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-//import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,7 +13,6 @@ import java.util.List;
 public class Server {
 	
 	public static volatile ArrayList<Connection> connections = new ArrayList<Connection>();
-	//public static ArrayList<UserData> ArrList = new ArrayList<UserData>();
 	public ServerSocket server;
 	public static BufferedReader in, inS;
 	public static PrintWriter out, outS;
@@ -30,7 +27,6 @@ public class Server {
 		
 		try {
 			server = new ServerSocket(1234);
-			System.out.println(server.getInetAddress());
 			
 			while (true) {
 				System.out.println(connections.size());
@@ -42,9 +38,9 @@ public class Server {
 				System.out.println("+1");
 				
 				while(true) {
-
-					str = inS.readLine();
 					
+					str = inS.readLine();
+					if (str.equals("disconnect") == true) break;
 					System.out.println("Сервер. Получил от юзера: " + str);
 					
 					Field = str.split("\\|");
@@ -68,7 +64,7 @@ public class Server {
 								System.out.println("Login: " + log + " не зарегистрирован." );
 								UserData new_user = new UserData(log, pass);
 								MainServer.ArrList.add(new_user);
-								String result = "registerback" + "|" + "successfuly" + "#" + "successfuly";
+								String result = "registerback" + "|" + "successfuly" + "#" + log + "%" + pass;
 								MainServer.servw.ChangeOnlineCount(MainServer.ArrList.size(), -2);
 								outS.println(result);
 							}
@@ -88,7 +84,6 @@ public class Server {
 					
 						loginflag = false;
 						System.out.println("Проверяю " + log + "|" + pass);
-						//synchronized(MainServer.ArrList)
 						Check(log, pass);	
 						System.out.println("Проверил и выслал ответ.");
 						
@@ -96,7 +91,6 @@ public class Server {
 							Connection con = new Connection(socket);
 							connections.add(con);
 							con.start();
-							// ++ online count;
 							MainServer.servw.ChangeOnlineCount(Server.connections.size(), 2);
 							System.out.println("Добавил новой подлкючение.");
 							break;
@@ -138,9 +132,18 @@ public class Server {
 				
 				if (MainServer.ArrList.get(i).getPassword().equals(pass) == true) {
 					// выслать в поток команду loginback с сообщением successful
-					loginflag = true;
-					String result = "loginback" + "|" + "successfuly" + "#" + "successfuly";				
-					outS.println(result);					
+					if (MainServer.ArrList.get(i).getisOnline() == false) {
+						loginflag = true;
+						MainServer.ArrList.get(i).setisOnline(true);
+						String result = "loginback" + "|" + "successfuly" + "#" + log + "%" + pass;				
+						outS.println(result);	
+					} 
+					else {
+						loginflag = true;
+						String result = "loginback" + "|" + "wrong" + "#" + "online";				
+						outS.println(result);
+					}
+					
 				}
 			}
 		}
@@ -150,22 +153,6 @@ public class Server {
 			// выслать в поток команду loginback с сообщением wrong
 		}
 	}
-
-	
-	public static void TextIN(List<UserData> ArrList) {
-		String str;
-		try{
-			BufferedReader in = new BufferedReader(new FileReader("User Data File.txt"));			
-			while ((str = in.readLine())!= null){
-				Field = str.split("\\|");	
-				String strNickname = Field[0];
-				String strPassword = Field[1];
-				UserData tmpUD = new UserData(strNickname,strPassword);
-				ArrList.add(tmpUD);
-			}
-			in.close();
-		} catch(IOException ex){}
-	}	
 	
 	public void Print(List<UserData> ArrList){
 		for (int i=0;i<ArrList.size(); i++) {
