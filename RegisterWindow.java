@@ -1,7 +1,6 @@
 package Application;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -18,14 +17,12 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import javax.swing.JPasswordField;
 
-public class RegisterWindow extends JFrame implements Runnable{
+public class RegisterWindow extends JFrame {
 	private static final long serialVersionUID = 21L;
-	private static final Object monitorReg = new Object();
 	
 	public static BufferedReader in;
 	public static PrintWriter out;
 	public static Socket socket;
-	private String info;
 	private JTextField inputnick;
 	private JLabel textlabel;
 	private JLabel textlabel_2;
@@ -34,17 +31,15 @@ public class RegisterWindow extends JFrame implements Runnable{
 	private JPasswordField passwordField;
 	private JPasswordField passwordField_1;
 	
-	public static  JOptionPane qwe1, qwe2, qwe3, qwe4;
-	
-	private String message;
 	static String[] Field = new String[2];
 	static String[] Log = new String[2];
 	
+	public static JOptionPane qwe5, qwe6;;
 	
 	public RegisterWindow() {
 		
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setTitle("Register New Account");
 		this.setMinimumSize(new Dimension(350, 225));
 		this.setVisible(false);
@@ -53,14 +48,17 @@ public class RegisterWindow extends JFrame implements Runnable{
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		    	message = "break|null";
-		    	Chat.win.out.println(message);
-				try {
-					Chat.win.in.close();
-					Chat.win.out.close();
-					RegisterWindow.socket.close();
-				} catch (Exception e) {  System.err.println("Exception в методе close");	}
-		    	dispose();
+		    	Object[] options = { "Да", "Нет!" };
+                int n = JOptionPane.showOptionDialog(windowEvent.getWindow(), "Закрыть окно регистрации?",
+                                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                if (n == 0) {
+                	Chat.win.out.println("disconnect");
+                	windowEvent.getWindow().setVisible(false);
+                	windowEvent.getWindow().dispose();
+    		    	System.exit(0);
+                }
+				
 		    }
 		    public void windowClosed(java.awt.event.WindowEvent windowEvent) {} 
 		    public void windowOpened(java.awt.event.WindowEvent windowEvent) {} 
@@ -128,8 +126,6 @@ public class RegisterWindow extends JFrame implements Runnable{
 		private static final long serialVersionUID = 2L;
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Chat.reg.runReg();
-			//Chat.log.runLogin();
 			String str = new String(passwordField.getPassword());
 			String str1 = new String(passwordField_1.getPassword());
 			if (e.getSource() == CreateButton & inputnick.getText().length() > 0 & str.length() > 0 == true & str1.length() > 0 == true){					
@@ -142,24 +138,19 @@ public class RegisterWindow extends JFrame implements Runnable{
 					System.out.println("Отправил на сервер " + new_mess);
 				}
 				else {
-					//JOptionPane.getRootFrame().setVisible(false);
 					JOptionPane.showMessageDialog(null,"Введеные пароли не совпадает. Повторите еще раз.", "Ошибка ввода данных", JOptionPane.WARNING_MESSAGE);
-					//JOptionPane.getRootFrame().setVisible(false);
 					System.out.println("Пароль не совпадает");
 					passwordField.setText("");
 					passwordField_1.setText("");
 				}
 				
-			}
-			
+			}		
 			else {
-				//JOptionPane.getRootFrame().setVisible(false);
 				JOptionPane.showMessageDialog(null,"Заполните все поля.", "Ошибка ввода данных.", JOptionPane.WARNING_MESSAGE);
-				//JOptionPane.getRootFrame().setVisible(false);	
-			}
-			
+			}		
 		}
 	};
+		
 	
 	private Action cansel = new AbstractAction() {
 		private static final long serialVersionUID = 2L;
@@ -174,60 +165,5 @@ public class RegisterWindow extends JFrame implements Runnable{
 			}
 		}
 	};
-
-
-	
-	public void waitReg() {
-        synchronized (monitorReg) {
-            try {
-            	monitorReg.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-	
-	public void runReg() {
-        synchronized (monitorReg) {
-        	monitorReg.notifyAll();
-        }
-    }
-	
-	
-	@Override
-	public void run() {		
-		waitReg();
-		while(true){
-			try {				
-				info = Chat.win.in.readLine();
-				System.out.println(info);
-				if (info == null) {continue;}
-				Field = info.split("\\|");
-				String operation = Field[0];
-				String message = Field[1];
-				System.out.println("Отправляю на сервер операцию:" + operation);
-				
-				if (operation.equals("registerback") == true) {
-					Log = message.split("#");
-					String log = Log[0];
-					String pass = Log[1];
-					System.out.println("Отправляю на сервер сообщение:" + log + "#" + pass);
-					if ((log.equals("successfuly") == true && pass.equals("successfuly") == true)) {
-						JOptionPane.showMessageDialog(null, "Регистрация прошла успешно. Теперь авторизуйтесь.");
-						Chat.reg.setVisible(false);
-						Chat.log.setVisible(true);
-						Chat.reg.dispose();								
-						break;
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Такой логин уже зарегистрирован, выберите другой.");
-					}
-				}
-			} catch (IOException e) {
-				System.err.println("IOException в методе run loginwindow.");
-				e.printStackTrace();					
-			} 
-		}
-	}
 
 }

@@ -13,6 +13,8 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionEvent;
 
 public class SetIP extends JFrame implements Runnable{
@@ -31,6 +33,20 @@ public class SetIP extends JFrame implements Runnable{
 		this.setMinimumSize(new Dimension(350, 150));
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
+		
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				System.exit(0);
+		    }
+		    public void windowClosed(java.awt.event.WindowEvent windowEvent) {} 
+		    public void windowOpened(java.awt.event.WindowEvent windowEvent) {} 
+		    public void windowIconified(java.awt.event.WindowEvent windowEvent) {} 
+		    public void windowDeiconified(java.awt.event.WindowEvent windowEvent) {} 
+		    public void windowActivated(java.awt.event.WindowEvent windowEvent) {} 
+		    public void windowDeactivated(java.awt.event.WindowEvent windowEvent) {} 
+		});
+		
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		getContentPane().setLayout(null);
 		
@@ -46,10 +62,7 @@ public class SetIP extends JFrame implements Runnable{
 		btnNewButton = new JButton("Connect");
 		btnNewButton.addActionListener(connect);
 		btnNewButton.setBounds(115, 81, 100, 25);
-		getContentPane().add(btnNewButton);
-		
-		
-		
+		getContentPane().add(btnNewButton);		
 		
 	}
 
@@ -69,14 +82,20 @@ public class SetIP extends JFrame implements Runnable{
 	@Override
 	public void run() {		
 		Chat.set.waitIP();
-			try {
+		while(true){
+			try {				
 				Chat.win.socket = new Socket(textField_1.getText(),1234);
 				Chat.win.in = new BufferedReader(new InputStreamReader(Chat.win.socket.getInputStream()));
-				Chat.win.out = new PrintWriter(Chat.win.socket.getOutputStream(),true);					
-			}catch (IOException e) {
-				System.err.println("IOException в методе run IP.");
-				e.printStackTrace();					
-			} 				
+				Chat.win.out = new PrintWriter(Chat.win.socket.getOutputStream(),true);	
+				Chat.log.setVisible(true);
+				Chat.recep.runReception();
+				break;
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Сервер не найден или не запущен на указаном IP.", "Ошибка ввода данных.", JOptionPane.WARNING_MESSAGE);
+				waitIP();
+				e.printStackTrace();					 
+			} 	
+		}
 	}
 	
 	

@@ -3,7 +3,6 @@ package Application;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -20,47 +19,48 @@ import java.awt.Font;
 import javax.swing.JPasswordField;
 
 
-public class LoginWindow extends JFrame implements Runnable {
+public class LoginWindow extends JFrame {
 	private static final long serialVersionUID = 4L;	
-	private static final Object monitorLog = new Object();
 	private JButton login, register;
-	private JTextField inputlog;
+	public JTextField inputlog;
+	public JPasswordField passwordField;
 	public static boolean flaglogin;
 	
 	public static BufferedReader in;
 	public static PrintWriter out;
 	public static Socket socket;
 	
-	
-	private String message;
-	private static String info;
 	static String[] Field = new String[2];
 	static String[] Log = new String[2];
 	public JPanel myRootPane = new JPanel();
-	//public   JOptionPane ;
+	
 	public static JOptionPane qwe1, qwe2, qwe3, qwe4;
 	
 
 	
 	public LoginWindow() {
 		setResizable(false);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setTitle("Welcome to Chat");
 		this.setMinimumSize(new Dimension(350, 253));
 		this.setLocationRelativeTo(null);
+		this.setVisible(false);
 		getContentPane().setLayout(null);
 		
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		    	
-		    	message = "break|null";
-				Chat.win.out.println(message);
-				try {
-					Chat.win.in.close();
-					Chat.win.out.close();
-					LoginWindow.socket.close();
-				} catch (Exception e) {  System.err.println("Exception в методе close");	}
-		    	dispose();
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {	
+		    	Object[] options = { "Да", "Нет!" };
+                int n = JOptionPane.showOptionDialog(windowEvent.getWindow(), "Закрыть окно входа?",
+                                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                if (n == 0) {
+                	Chat.win.out.println("disconnect");
+                	windowEvent.getWindow().setVisible(false);
+                	windowEvent.getWindow().dispose();
+    		    	System.exit(0);
+                }
+				
 		    } 
 		    public void windowClosed(java.awt.event.WindowEvent windowEvent) {} 
 		    public void windowOpened(java.awt.event.WindowEvent windowEvent) {} 
@@ -106,8 +106,7 @@ public class LoginWindow extends JFrame implements Runnable {
 		passwordField.setBounds(111, 84, 200, 25);
 		getContentPane().add(passwordField);
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setVisible(true);	
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 	}
 	
 	
@@ -128,92 +127,19 @@ public class LoginWindow extends JFrame implements Runnable {
 		return inputlog;
 	}
 	
-				
-	@Override
-	public void run() {	
-		waitLogin();
-		while(true){
-			try {				
-				info = Chat.win.in.readLine();
-				System.out.println(info);
-				if (info == null) {continue;}
-				Field = info.split("\\|");
-				String operation = Field[0];
-				String message = Field[1];
-				System.out.println("Отправляю на сервер операцию:" + operation);
-				
-				if (operation.equals("loginback") == true) {
-					Log = message.split("#");
-					String log = Log[0];
-					String pass = Log[1];
-					System.out.println("Отправляю на сервер сообщение:" + log + "#" + pass);
-					if ((log.equals("successfuly") == true) && (pass.equals("successfuly") == true)) {
-						Chat.reg.dispose();
-						Chat.win.setVisible(true);		
-						Chat.win.dispose();
-						break;
-					}
-					else {
-						qwe2 = new JOptionPane();
-						qwe2.showMessageDialog(null,"Такой логин не зарегистрирован, или пароль неверный.", "Ошибка ввода данных.", qwe2.WARNING_MESSAGE);
-						remove(qwe2);
-					}
-				} 
-				else {
-					Log = message.split("#");
-					String log = Log[0];
-					String pass = Log[1];
-					System.out.println("Получил на проверку результат:" + log + "#" + pass);
-					if ((log.equals("successfuly") == true && pass.equals("successfuly") == true)) {
-						JOptionPane.showMessageDialog(this, "Регистрация прошла успешно. Теперь авторизуйтесь.");
-						Chat.reg.setVisible(false);
-						Chat.log.setVisible(true);
-					}
-					if ((log.equals("wrong") == true && pass.equals("wrong") == true)){
-						qwe3 = new JOptionPane();
-						qwe3.showMessageDialog(this,"Такой логин уже зарегистрирован, выберите другой.", "Ошибка ввода данных.", qwe3.WARNING_MESSAGE);
-						remove(qwe3);
-					}
-				}
-			} catch (IOException e) {
-				System.err.println("IOException в методе run loginwindow.");
-				e.printStackTrace();					
-			} 
-		}
-	}
-	
-	public void waitLogin() {
-        synchronized (monitorLog) {
-            try {
-                monitorLog.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-	
-	public void runLogin() {
-        synchronized (monitorLog) {
-            monitorLog.notifyAll();
-        }
-    }
-	
 	private Action ButtonLogin = new AbstractAction() {
 		private static final long serialVersionUID = 2L;
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if ((e.getSource() == login) & (inputlog.getText().length() > 0) & (passwordField.getPassword().length > 0 ) ) { 
-				runLogin();
+			if ((e.getSource() == login) & (inputlog.getText().length() > 0) & (passwordField.getPassword().length > 0 ) ) { 				
 				String log = inputlog.getText();
 				Chat.Name = log;
 				String pass = new String(passwordField.getPassword());
 				String new_mess = "login" + "|" + log + "#" + pass;
-				Chat.win.out.println(new_mess);	
-				System.out.println("Отправляю на сервер " + new_mess);								
+				Chat.win.out.println(new_mess);									
 			}
 			else {
-				qwe4 = new JOptionPane();
-				qwe4.showMessageDialog(null,"Пустые поля ввода. Пожалуйста укажите логин и пароль.", "Ошибка ввода данных.", qwe4.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,"Пустые поля ввода. Пожалуйста укажите логин и пароль.", "Ошибка ввода данных.", JOptionPane.WARNING_MESSAGE);
 				remove(qwe4);
 			}
 		}
@@ -228,6 +154,6 @@ public class LoginWindow extends JFrame implements Runnable {
 			Chat.log.setVisible(false);
 			Chat.reg.setVisible(true);
 		}
-	};
-	private JPasswordField passwordField;
+	};				
+	
 }
